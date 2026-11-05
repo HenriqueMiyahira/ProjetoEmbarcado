@@ -21,11 +21,7 @@ void setup() {
 
   Serial.println(WiFi.localIP());
 
-  //setando rotas API embarcada
-  server.on("/api/dht", HTTP_GET, getDhtData);
-  server.on("/api/fan", HTTP_POST, switchFan);
-
-  server.begin();
+  WebServer::initWebServer();
 }
 
 void loop() {
@@ -35,10 +31,17 @@ void loop() {
     Hardware::readSensor();
   }
 
-  if (Hardware::currentTemp > Hardware::targetTemp) {
-    Hardware::activateFan(true);
-  } else if (Hardware::currentTemp <= (Hardware::targetTemp - HYSTERESIS)) {
-    Hardware::activateFan(false);
-  }
+  static bool fanState = false;
 
+  if (Hardware::autoMode) {
+    if (Hardware::currentTemp > Hardware::targetTemp ) {
+    Hardware::activateFan(true);
+    fanState = true;
+
+    } else if (Hardware::currentTemp <= (Hardware::targetTemp - HYSTERESIS) && fanState) {
+      fanState = false;
+      Hardware::activateFan(false);
+    }
+  }
+  
 }

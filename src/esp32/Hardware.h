@@ -1,6 +1,7 @@
 #pragma once
 #include <Arduino.h>
 #include <DHT.h>
+#include "Config.h"
 
 namespace Hardware {
   //Temperatura desejada
@@ -8,36 +9,31 @@ namespace Hardware {
 
   //Variável para controle de liga e desliga automático do fan;
   bool autoMode = true; 
-
-  // Declarando variáveis pinos DHT22 & RELÉ
-  const int PINO_DHT = 27;
-  const int PINO_RELAY = 26;
-
-  inline DHT sensor(PINO_DHT, DHT22); // Instância Sensor DHT22
+  
+  inline DHT sensor(DHT_PIN, DHT22); // Instância Sensor DHT22
 
   // Variáveis de Estados
-  const float currentTemp = 0.0;
-  const float currentHumid = 0.0;
-  const bool errorSensor = false;
-  const bool fanIsOn = true; //Lógica invertida true = off & false = on
+  inline float currentTemp = 0.0;
+  inline float currentHumid = 0.0;
+  inline bool errorSensor = false;
 
   inline void init() {
-    digitalWrite(PINO_RELAY, HIGH); // Garante que ventoinha vai estar off
-    pinMode(PINO_RELAY, OUTPUT);
+    pinMode(RELAY_PIN, OUTPUT);
+    digitalWrite(RELAY_PIN, LOW); // Garante que ventoinha vai estar off
 
     sensor.begin();
   }
 
   inline void activateFan(bool on) {
-    if(on) {
-      digitalWrite(PINO_RELAY, LOW),
-      fanIsOn = false;
-    }
+    Serial.println(on);
+    digitalWrite(RELAY_PIN, on ? HIGH : LOW);
   } 
 
   inline void readSensor() {
     float t = sensor.readTemperature();
-    float h = sensor.readHumity();
+    float h = sensor.readHumidity();
+
+    Serial.print("Temperatura lida: "); Serial.println(t);
 
     if (isnan(t) || isnan(h)) {
       errorSensor = true;
@@ -48,4 +44,4 @@ namespace Hardware {
     currentHumid = h;
     currentTemp = t;
   }
-}
+};
