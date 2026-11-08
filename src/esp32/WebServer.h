@@ -2,6 +2,7 @@
 #include <LittleFS.h>
 #include <ESPAsyncWebServer.h>
 #include <Preferences.h>
+#include "Config.h"
 #include "Hardware.h"
 
 AsyncWebServer server(80);
@@ -30,12 +31,12 @@ namespace WebServer {
 
   // -- Altera status da fan (HIGH ou LOW)
   void switchFan(AsyncWebServerRequest *request) {
-    if (!request->hasParam("action")) {
+    if (!request->hasParam("action", true)) {
       request->send(400);
       return;
     } 
 
-    String actionStr = request->getParam("action")->value();
+    String actionStr = request->getParam("action", true)->value();
     bool action = (actionStr == "true");
 
     Hardware::activateFan(action);
@@ -48,15 +49,20 @@ namespace WebServer {
 
   // -- Altera o modo automático
   void autoMode(AsyncWebServerRequest *request) {
-    if (!request->hasParam("action")) {
+    if (!request->hasParam("action", true)) {
       request->send(400, "application/json", "{\"ok\": false, \"message\": \"Erro ao alterar modo\"}");
       return;
     }
 
-    String actionStr = request->getParam("action")->value();
+    String actionStr = request->getParam("action", true)->value();
     bool action = (actionStr == "true" || actionStr == "1");
     
     Hardware::autoMode = action;
+
+    Preferences prefs;
+    prefs.begin("configs", false);
+    prefs.putBool("automode", Hardware::automode);
+    prefs.end();
 
     String response = "{\"message\": \"Modo alterado com sucesso\", \"ok\": true}";
 
@@ -73,6 +79,11 @@ namespace WebServer {
     float newTargetTemp = request->getParam("value")->value().toFloat();
 
     Hardware::targetTemp = newTargetTemp;
+
+    Preferences prefs;
+    prefs.begin("configs", false);
+    prefs.putFloat("target", Hardware::targetTemp);
+    prefs.end();
 
     String response = "{\"message\": \"Temperatura alvo atualizada\", \"ok\": true}";
 
@@ -124,9 +135,28 @@ namespace WebServer {
     server.serveStatic("/", LittleFS, "/").setDefaultFile("thermoflow.html");
 
     server.on("/api/dht", HTTP_GET, getDhtData);// DHT22
+
     server.on("/api/targettemp", HTTP_GET, alterTargetTemp);// Temperatura Alvo
-    server.on("/api/mode", HTTP_GET, autoMode);// Auto mode
-    server.on("/api/fan", HTTP_GET, switchFan);// Acionar Fan
+
+    // -- GET - mode
+    server.on("/api/mode", HTTP_GET, [](AsyncWebServerRequest *request) {
+      String response = "{\"message\": " + String(Hardware::autoMode) + ", \"ok\": true}";
+      request ->send(200, "application/json", response);
+    });
+
+    // -- POST - mode
+    server.on("/api/mode", HTTP_POST, autoMode);
+
+    // -- GET - fan
+    server.on("/api/fan", HTTP_GET, [](AsyncWebServerRequest *request) {
+      bool isFanOn = (digitalRead(Config::RELAY_PIN) == HIGH);
+      String response = "{\"message\": " + String(isFanOn) + ", \"ok\": true}";
+      request ->send(200, "application/json", response);
+    });
+
+    // -- POST - fan
+    server.on("/api/fan", HTTP_POST, swtichFan); 
+
     // -- Consultar Logs do sistema
     server.on("/api/logs", HTTP_GET, [](AsyncWebServerRequest *request){
       if (LittleFS.exists("/logs.txt")) {
@@ -135,10 +165,12 @@ namespace WebServer {
         request->send(404, "text/plain", "Nenhum log encontrado.");
       }
     });
+
     // -- Serve Página de Configuração
     server.on("/config", HTTP_GET, [](AsyncWebServerRequest *request){
       request->send(200, "text/html", htmlSetupWifi);
     });
+
     // -- Salvar configurações novas de WiFi
     server.on("/api/savewifi", HTTP_GET, [](AsyncWebServerRequest *request){
     if (request->hasParam("ssid") && request->hasParam("pass")) {

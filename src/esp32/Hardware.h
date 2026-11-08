@@ -9,12 +9,12 @@
 
 namespace Hardware {
   // -- Temperatura desejada
-  inline float targetTemp = 21.0;
+  inline float targetTemp;
 
   // -- Variável para controle de liga e desliga automático do fan;
-  bool autoMode = true; 
+  bool autoMode = false; 
   
-  inline DHT sensor(DHT_PIN, DHT22); // Instância Sensor DHT22
+  inline DHT sensor(Config::DHT_PIN, DHT22); // Instância Sensor DHT22
 
   // -- Variáveis de Estados
   inline float currentTemp = 0.0;
@@ -23,8 +23,14 @@ namespace Hardware {
 
   // -- Inicia o Hardware
   inline void init() {
-    pinMode(RELAY_PIN, OUTPUT);
-    digitalWrite(RELAY_PIN, LOW); // Garante que ventoinha vai estar off
+    Preferences prefs;
+    prefs.begin("config", false);
+    targetTemp = prefs.getFloat("target", 21.0);
+    autoMode = prefs.getBool("auomode", false);
+    prefs.end();
+
+    pinMode(Config::RELAY_PIN, OUTPUT);
+    digitalWrite(Config::RELAY_PIN, LOW); // Garante que ventoinha vai estar off
 
     sensor.begin();
   }
@@ -41,10 +47,10 @@ namespace Hardware {
 
   // -- Inicia o WiFi
   inline void initWiFi() {
-    Preferences preferences;
-    preferences.begin("wifi", false);
-    String savedSSID = preferences.getString("ssid", "");
-    String savedPass = preferences.getString("pass", "");
+    Preferences prefs;
+    prefs.begin("wifi", false);
+    String savedSSID = prefs.getString("ssid", "");
+    String savedPass = prefs.getString("pass", "");
 
     // 1. Liga os dois modos simultaneamente (Cliente e Roteador)
     WiFi.mode(WIFI_AP_STA);
@@ -81,7 +87,7 @@ namespace Hardware {
 
   // -- Ativa a fan
   inline void activateFan(bool on) {
-    digitalWrite(RELAY_PIN, on ? HIGH : LOW);
+    digitalWrite(Config::RELAY_PIN, on ? HIGH : LOW);
   } 
 
   // -- Lê as informações do ambiente coletadas pelo sensor
