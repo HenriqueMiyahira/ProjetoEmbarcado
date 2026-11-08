@@ -89,8 +89,6 @@ namespace Hardware {
     float t = sensor.readTemperature();
     float h = sensor.readHumidity();
 
-    Serial.print("Temperatura lida: "); Serial.println(t);
-
     if (isnan(t) || isnan(h)) {
       errorSensor = true;
       logError("Erro ao ler Temperatura");

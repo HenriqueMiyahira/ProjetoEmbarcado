@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Climate Control</title>
+  <!--
+    Fontes opcionais (Fraunces + Inter). Quem baixa é o navegador do celular, não o ESP32,
+    e só funciona se o celular tiver internet. Sem isso, o CSS usa fontes do sistema.
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  -->
+  <link rel="stylesheet" href="thermoflow.css">
+</head>
+<body>
+  <main class="app">
+
+    <header class="header">
+      <div>
+        <p class="eyebrow">Controle de clima</p>
+        <h1>Estufa 01</h1>
+      </div>
+      <span class="state-pill state-pill--off" id="connectionPill">Conectando…</span>
+    </header>
+
+    <!-- Leitura atual -->
+    <section class="card">
+      <h2>Ambiente</h2>
+      <div class="metrics">
+        <div>
+          <p class="label">Temperatura</p>
+          <p class="value"><span id="temperatureValue">--</span><small>°C</small></p>
+        </div>
+        <div>
+          <p class="label">Umidade</p>
+          <p class="value"><span id="humidityValue">--</span><small>%</small></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Temperatura desejada + modo automático -->
+    <section class="card">
+      <h2>Temperatura desejada</h2>
+      <p class="value value--center"><span id="temperatureLimitValue">24</span><small>°C</small></p>
+      <input type="range" id="temperatureLimitInput" min="15" max="35" step="0.5" value="24" aria-label="Temperatura desejada">
+      <div class="range-scale"><span>15°</span><span>35°</span></div>
+
+      <label class="row">
+        <span>
+          <span class="row-title">Modo automático</span>
+          <span class="row-text">Liga o ventilador sozinho acima da temperatura desejada</span>
+        </span>
+        <span class="switch">
+          <input type="checkbox" id="autoModeToggle" role="switch">
+          <span class="switch-track"></span>
+        </span>
+      </label>
+    </section>
+
+    <!-- Ventilador -->
+    <section class="card">
+      <div class="card-head">
+        <h2>Ventilador</h2>
+        <span class="state-pill state-pill--off" id="fanStatus">DESLIGADO</span>
+      </div>
+
+      <div class="fan" id="fanVisual">
+        <svg viewBox="0 0 48 48" aria-hidden="true">
+          <path d="M24 24C16 18 16 6 24 6C32 6 32 18 24 24Z"/>
+          <path d="M24 24C16 18 16 6 24 6C32 6 32 18 24 24Z" transform="rotate(120 24 24)"/>
+          <path d="M24 24C16 18 16 6 24 6C32 6 32 18 24 24Z" transform="rotate(240 24 24)"/>
+        </svg>
+        <p id="fanVisualLabel">EM ESPERA</p>
+      </div>
+
+      <label class="row">
+        <span class="row-title" id="fanPowerLabel">Ventilador desligado</span>
+        <span class="switch">
+          <input type="checkbox" id="fanToggle" role="switch">
+          <span class="switch-track"></span>
+        </span>
+      </label>
+    </section>
+
+    <!-- Conexão (preenchida por /api/network) -->
+    <section class="card">
+      <h2>Conexão</h2>
+      <dl class="info">
+        <div><dt>Tipo de conexão</dt><dd id="networkType">—</dd></div>
+        <div><dt>Nome da rede</dt><dd id="networkName">—</dd></div>
+        <div><dt>Endereço IP</dt><dd id="networkIp">—</dd></div>
+        <div><dt>Endereço MAC</dt><dd id="networkMac">—</dd></div>
+      </dl>
+    </section>
+
+    <!-- Logs (preenchida por /api/logs) -->
+    <section class="card">
+      <h2>Logs</h2>
+      <ul class="log-list" id="logList"></ul>
+    </section>
+
+  </main>
+  <script src="thermoflow.js"></script>
+</body>
+</html>
