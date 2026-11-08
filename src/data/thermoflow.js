@@ -63,8 +63,8 @@ async function alterTargetTemp(value) {
     const data = await response.json();
 
     if (!data.ok) {
-      targetTempInput.value = data.temp;
-      targetTempView.innerText = data.temp;
+      targetTempInput.value = `${data.temp}`;
+      targetTempView.innerText = `${data.temp}`;
       console.error(data.message);
       return;
     }
@@ -112,6 +112,7 @@ targetTempInput.addEventListener('input', async (e) => {
 });
 
 autoModeToggle.addEventListener('change', async(e) => {
+  
   await autoMode(e.target.checked);
 });
 

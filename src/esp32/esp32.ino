@@ -5,23 +5,14 @@
 #include "Hardware.h"
 #include "WebServer.h"
 
-//Variáveis globais
+// -- Variáveis globais
 unsigned long lastRead = 0;
 
 void setup() {
   Serial.begin(115200); //Iniciando Monitor Serial
   Hardware::init(); // Iniciando Hardware
-
-  WiFi.begin(SSID, PASSWORD); //Iniciando WiFi
-
-  while(WiFi.status() != WL_CONNECTED) {
-    Serial.print(".");
-    delay(500);
-  }
-
-  Serial.println(WiFi.localIP());
-
-  WebServer::initWebServer();
+  Hardware::initWiFi(); // Iniciando WiFi
+  WebServer::initWebServer(); // Iniciando Servidor Web
 }
 
 void loop() {
