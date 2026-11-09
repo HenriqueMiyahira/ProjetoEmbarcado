@@ -11,6 +11,7 @@ Em desenvolvimento. Projeto da disciplina de Conectividade de Sistemas Ciberfís
 - ESP32
 - Sensor DHT22 (temperatura e umidade)
 - WebServer com API em JSON
+- fan de 5v
 
 ## Autores
 
