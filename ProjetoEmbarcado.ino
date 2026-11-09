@@ -1,14 +1,14 @@
 #include <WiFi.h>
 #include <ESPAsyncWebServer.h>
 #include <Arduino.h>
-#include <Preferences>
+#include <Preferences.h>
 #include "Config.h"
 #include "Hardware.h"
 #include "WebServer.h"
 
 // -- Variáveis globais
 unsigned long lastRead = 0;
-unsigned long lastSaveTemp
+unsigned long lastSaveTemp;
 
 void setup() {
   Serial.begin(115200); //Iniciando Monitor Serial
@@ -24,8 +24,11 @@ void loop() {
 
     File historyFile = LittleFS.open("/history.csv", "a");
     if (historyFile) {
-      historyFile.println(String(Hardware::currentTemp) + "," + String(Hardware::currentHumid));
-      historyFile.close()
+      String row = Hardware::getTimestamp() + "," + 
+                   String(Hardware::currentTemp) + "," + 
+                   String(Hardware::currentHumid);
+      historyFile.println(row);
+      historyFile.close();
     }
   }
 

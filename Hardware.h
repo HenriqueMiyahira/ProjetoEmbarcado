@@ -1,10 +1,12 @@
-#pragma once
+#ifndef HARDWARE_H
+#define HARDWARE_H
 #include <Arduino.h>
 #include <DHT.h>
 #include <WiFi.h>
 #include <Preferences.h>
 #include "Config.h"
 #include <LittleFS.h>
+#include <time.h>
 
 
 namespace Hardware {
@@ -12,7 +14,7 @@ namespace Hardware {
   inline float targetTemp;
 
   // -- Variável para controle de liga e desliga automático do fan;
-  bool autoMode = false; 
+  bool autoMode;
   
   inline DHT sensor(Config::DHT_PIN, DHT22); // Instância Sensor DHT22
 
@@ -21,12 +23,32 @@ namespace Hardware {
   inline float currentHumid = 0.0;
   inline bool errorSensor = false;
 
+  // -- Configuração Horário para UTC-3
+  const char* ntpServer = "pool.ntp.org";
+  const long gmtOffset_sec = -10800; // -3 horas em millis
+  const int daylightOffset_sec = 0;
+
+  // -- Captura o horário atual
+  inline String getTimestamp() {
+    struct tm timeinfo;
+    
+    // Tenta pegar a hora. Se falhar (sem internet), devolve o tempo de atividade
+    if (!getLocalTime(&timeinfo)) {
+        return String(millis() / 1000) + "s (uptime)";
+    }
+    
+    // Formata para "YYYY-MM-DD HH:MM:SS"
+    char timeStringBuff[50];
+    strftime(timeStringBuff, sizeof(timeStringBuff), "%Y-%m-%d %H:%M:%S", &timeinfo);
+    return String(timeStringBuff);
+  }
+
   // -- Inicia o Hardware
   inline void init() {
     Preferences prefs;
     prefs.begin("config", false);
     targetTemp = prefs.getFloat("target", 21.0);
-    autoMode = prefs.getBool("auomode", false);
+    autoMode = prefs.getBool("automode", false);
     prefs.end();
 
     pinMode(Config::RELAY_PIN, OUTPUT);
@@ -40,7 +62,7 @@ namespace Hardware {
     File logFile = LittleFS.open("/logs.txt", "a");
     if (logFile) {
       unsigned long temp = millis() / 1000;
-      logFile.println("[" + String(temp) + "s] ERRO: "+ error);
+      logFile.println("[" + getTimestamp() + "s] ERRO: "+ error);
       logFile.close();
     }
   }
@@ -82,6 +104,7 @@ namespace Hardware {
       
      // Desliga AP
       WiFi.mode(WIFI_STA); 
+      configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
     }
   }
 
@@ -106,3 +129,4 @@ namespace Hardware {
     currentTemp = t;
   }
 };
+#endif
