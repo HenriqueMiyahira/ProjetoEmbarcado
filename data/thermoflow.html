@@ -17,7 +17,7 @@
     <header class="header">
       <div>
         <p class="eyebrow">Controle de clima</p>
-        <h1>Estufa 01</h1>
+        <h1>ThermoFlow</h1>
       </div>
       <span class="state-pill state-pill--off" id="connectionPill">Conectando…</span>
     </header>
@@ -81,15 +81,29 @@
       </label>
     </section>
 
-    <!-- Conexão (preenchida por /api/network) -->
+    <!-- Conexão (preenchida por /api/conn) -->
     <section class="card">
       <h2>Conexão</h2>
       <dl class="info">
+        <div><dt>Status</dt><dd id="networkStatus">—</dd></div>
         <div><dt>Tipo de conexão</dt><dd id="networkType">—</dd></div>
         <div><dt>Nome da rede</dt><dd id="networkName">—</dd></div>
         <div><dt>Endereço IP</dt><dd id="networkIp">—</dd></div>
         <div><dt>Endereço MAC</dt><dd id="networkMac">—</dd></div>
       </dl>
+    </section>
+
+    <!-- Histórico: gráfico do /history.csv (uPlot) -->
+    <section class="card">
+      <h2>Histórico</h2>
+      <select id="historyPeriod" aria-label="Período do histórico">
+        <option value="1">Últimas 24 horas</option>
+        <option value="7" selected>Últimos 7 dias</option>
+        <option value="30">Últimos 30 dias</option>
+        <option value="183">Últimos 6 meses</option>
+      </select>
+      <p class="chart-status" id="historyStatus">Carregando…</p>
+      <div id="historyChart"></div>
     </section>
 
     <!-- Logs (preenchida por /api/logs) -->
@@ -100,5 +114,8 @@
 
   </main>
   <script src="thermoflow.js"></script>
+  <!-- uPlot via CDN (versão fixa). "async" para não travar a página se o celular estiver sem internet.
+       O CSS da uPlot (1,8 KB) está no fim do style.css, de propósito: um <link> externo bloquearia a tela. -->
+  <script async src="https://cdn.jsdelivr.net/npm/uplot@1.6.32/dist/uPlot.iife.min.js"></script>
 </body>
 </html>

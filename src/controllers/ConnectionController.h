@@ -16,12 +16,15 @@ namespace ConnectionController {
     // Pega o endereço MAC físico da placa
     String macAddress = WiFi.macAddress();
 
+    String currentSSID = isConnected ? WiFi.SSID() : "ThermoFlow_Setup";
+
     String json = "{";
     json += "\"ok\": true, ";
     json += "\"status\": \"" + statusText + "\", ";
     json += "\"mode\": \"" + connectionMode + "\", ";
     json += "\"ip\": \"" + currentIP + "\", ";
-    json += "\"mac\": \"" + macAddress + "\"";
+    json += "\"mac\": \"" + macAddress + "\", ";
+    json += "\"ssid\": \"" + currentSSID + "\"";
     json += "}";
 
     request->send(200, "application/json", json);
@@ -29,11 +32,11 @@ namespace ConnectionController {
 
   // -- Salva informações do WiFi
   inline void store(AsyncWebServerRequest *request) {
-    if (request->hasParam("ssid") && request->hasParam("pass")) {
+    if (request->hasParam("ssid", true) && request->hasParam("pass", true)) {
         Preferences prefs; 
         prefs.begin("wifi", false);
-        prefs.putString("ssid", request->getParam("ssid")->value());
-        prefs.putString("pass", request->getParam("pass")->value());
+        prefs.putString("ssid", request->getParam("ssid", true)->value());
+        prefs.putString("pass", request->getParam("pass", true)->value());
         prefs.end();
 
         String msg = "<body style='background:#121214; color:#009D71; text-align:center;'><h2 style='margin-top:50px;'>Rede Salva! Reiniciando o sistema...</h2></body>";

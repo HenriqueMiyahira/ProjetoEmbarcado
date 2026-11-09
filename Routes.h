@@ -5,7 +5,7 @@
 #include "src/controllers/AutoModeController.h"
 #include "src/controllers/TargetTempController.h"
 #include "src/controllers/LogController.h"
-#include "src/controllers/ConectionController.h"
+#include "src/controllers/ConnectionController.h"
 
 
 namespace Routes {

@@ -11,7 +11,7 @@ unsigned long lastRead = 0;
 unsigned long lastSaveTemp;
 
 void setup() {
-  Serial.begin(115200); //Iniciando Monitor Serial
+  Serial.begin(115200); //Iniciando Monitor SerialS
   Hardware::init(); // Iniciando Hardware
   Hardware::initWiFi(); // Iniciando WiFi
   WebServer::initWebServer(); // Iniciando Servidor Web

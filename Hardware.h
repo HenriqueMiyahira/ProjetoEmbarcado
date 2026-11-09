@@ -46,7 +46,7 @@ namespace Hardware {
   // -- Inicia o Hardware
   inline void init() {
     Preferences prefs;
-    prefs.begin("config", false);
+    prefs.begin("configs", false);
     targetTemp = prefs.getFloat("target", 21.0);
     autoMode = prefs.getBool("automode", false);
     prefs.end();
@@ -73,6 +73,7 @@ namespace Hardware {
     prefs.begin("wifi", false);
     String savedSSID = prefs.getString("ssid", "");
     String savedPass = prefs.getString("pass", "");
+    prefs.end();
 
     // 1. Liga os dois modos simultaneamente (Cliente e Roteador)
     WiFi.mode(WIFI_AP_STA);
