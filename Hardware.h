@@ -75,11 +75,11 @@ namespace Hardware {
     String savedPass = prefs.getString("pass", "");
     prefs.end();
 
-    // 1. Liga os dois modos simultaneamente (Cliente e Roteador)
+    // Liga os dois modos simultaneamente (Cliente e Roteador)
     WiFi.mode(WIFI_AP_STA);
     WiFi.softAP("ThermoFlow_Setup", "12345678");
 
-    // 2. Mágica: Pede pro ESP32 tentar reconectar sozinho em background se a rede cair
+    // ESP32 tentar reconectar sozinho em background se a rede cair
     WiFi.setAutoReconnect(true);
 
     if (savedSSID != "") {
@@ -87,18 +87,18 @@ namespace Hardware {
       WiFi.begin(savedSSID.c_str(), savedPass.c_str());
 
       int tentativas = 0;
-      // Espera só 5 segundos. Se não der, o código continua!
+      // Espera só 5 segundos. Se não der, o código continua
       while (WiFi.status() != WL_CONNECTED && tentativas < 20) {
         delay(500);
         Serial.print(".");
         tentativas++;
+        if (tentativas == 20) {logError("Falha de conexão inicial. AP ativado.");}
       }
     }
     
     if (WiFi.status() != WL_CONNECTED) {
       Serial.println("\n[AVISO] Falha ao conectar. AP ativo: ");
       Serial.println(WiFi.softAPIP());
-      logError("Falha de conexão inicial. AP ativado.");
     } else {
       Serial.println("\n[SUCESSO] Conectado! IP Local: ");
       Serial.println(WiFi.localIP());

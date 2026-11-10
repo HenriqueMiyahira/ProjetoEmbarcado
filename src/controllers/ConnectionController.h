@@ -38,9 +38,6 @@ namespace ConnectionController {
         prefs.putString("ssid", request->getParam("ssid", true)->value());
         prefs.putString("pass", request->getParam("pass", true)->value());
         prefs.end();
-
-        String msg = "<body style='background:#121214; color:#009D71; text-align:center;'><h2 style='margin-top:50px;'>Rede Salva! Reiniciando o sistema...</h2></body>";
-        request->send(200, "text/html", msg);
         
         delay(2000);
         ESP.restart(); 

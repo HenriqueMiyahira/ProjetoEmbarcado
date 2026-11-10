@@ -65,14 +65,6 @@ namespace WebServer {
 
   // -- Inicia o servidor Web
   inline void initWebServer() {
-    if (!LittleFS.begin(true)) {
-      Serial.println("[AVISO] Erro ao iniciar LittleFS!");
-      Hardware::logError("Erro ao iniciar LittleFS!");
-      return;
-    }
-    Serial.println("[SUCESSO] LittleFS montado com sucesso!");
-
-    
     server.serveStatic("/", LittleFS, "/").setDefaultFile("thermoflow.html");
 
     // -- Setando rotas

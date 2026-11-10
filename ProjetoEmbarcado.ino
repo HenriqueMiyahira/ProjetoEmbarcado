@@ -13,6 +13,12 @@ unsigned long lastSaveTemp;
 void setup() {
   Serial.begin(115200); //Iniciando Monitor SerialS
   Hardware::init(); // Iniciando Hardware
+  if (!LittleFS.begin(true)) {
+    Serial.println("[AVISO] Erro ao iniciar LittleFS!");
+    Hardware::logError("Erro ao iniciar LittleFS!");
+    return;
+  }
+  Serial.println("[SUCESSO] LittleFS montado com sucesso!");
   Hardware::initWiFi(); // Iniciando WiFi
   WebServer::initWebServer(); // Iniciando Servidor Web
 }
